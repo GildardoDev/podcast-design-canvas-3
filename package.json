@@ -1,0 +1,14 @@
+{
+  "name": "podcast-design-canvas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-serve visual podcast production workspace: import synced speaker videos, compose with a preset layout, preview from real frames, and export a long-form video.",
+  "scripts": {
+    "test": "node scripts/run-tests.mjs",
+    "preview-build": "node scripts/preview-build.mjs",
+    "typecheck": "node scripts/preview-build.mjs",
+    "lint": "node scripts/preview-build.mjs",
+    "start": "node scripts/serve.mjs"
+  }
+}

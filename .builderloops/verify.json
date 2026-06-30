@@ -1,0 +1,7 @@
+{
+  "comment": "Build-correctness gate: zero-dependency unit tests over the DOM-free episode/preset/export-plan models plus a static shippability check. This does NOT validate a committed media artifact. The real product behavior (real uploaded frames composited on a canvas, mixed speaker audio, and a live MediaRecorder export the user downloads) is exercised in the running app and the headless tests/browser-export-flow.mjs, and must be verified by running the app.",
+  "checks": [
+    { "name": "test", "run": "node scripts/run-tests.mjs" },
+    { "name": "preview-build", "run": "node scripts/preview-build.mjs" }
+  ]
+}

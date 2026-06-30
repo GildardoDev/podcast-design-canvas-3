@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Podcast Design Canvas</title>
+    <link rel="stylesheet" href="app/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">🎙️ Podcast Design Canvas</div>
+      <div class="steps" id="steps">
+        <span class="step is-active" data-step="1">1 · Import</span>
+        <span class="step" data-step="2">2 · Style</span>
+        <span class="step" data-step="3">3 · Preview &amp; Export</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel" aria-label="Setup">
+        <label class="field">
+          <span>Episode title</span>
+          <input id="title" type="text" value="Episode 1" />
+        </label>
+
+        <h2>1 · Upload synced speaker videos</h2>
+        <p class="hint">Add a separate video file for each speaker, then assign it to a bucket. You need at least two.</p>
+
+        <div class="buckets" id="buckets"></div>
+
+        <h2>2 · Choose a preset visual style</h2>
+        <div class="presets" id="presets"></div>
+
+        <button id="compose" class="primary" disabled>Compose preview</button>
+        <p class="readiness" id="readiness"></p>
+      </section>
+
+      <section class="panel stage" aria-label="Preview and export">
+        <h2>3 · Preview &amp; export</h2>
+        <div class="canvas-wrap">
+          <canvas id="stage" width="1280" height="720" aria-label="Episode preview"></canvas>
+          <div class="canvas-empty" id="canvasEmpty">Upload two speaker videos and pick a style, then Compose preview.</div>
+        </div>
+        <div class="export-row">
+          <label class="field inline">
+            <span>Resolution</span>
+            <select id="resolution">
+              <option value="720p" selected>720p</option>
+              <option value="1080p">1080p</option>
+            </select>
+          </label>
+          <button id="play" disabled>▶ Play preview</button>
+          <button id="export" class="primary" disabled>Export video</button>
+        </div>
+        <div class="progress" id="progress" hidden><div class="bar" id="bar"></div></div>
+        <div class="result" id="result" hidden></div>
+      </section>
+    </main>
+
+    <script type="module" src="app/ui.js"></script>
+  </body>
+</html>
