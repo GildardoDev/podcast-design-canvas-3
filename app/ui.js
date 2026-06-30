@@ -248,6 +248,40 @@
     }
   });
 
+  // Audio mixing controls: clicking a preset enables the engine (a real user
+  // gesture), applies the setting (audible immediately), and marks selection.
+  function markAudioSelected(kind, preset) {
+    document.querySelectorAll('[data-audio-set]').forEach(function (b) {
+      const on = b.dataset.audioSet === kind + ":" + preset;
+      if (b.dataset.audioSet.indexOf(kind + ":") === 0) {
+        b.classList.toggle("selected", on);
+        b.setAttribute("aria-pressed", String(on));
+      }
+    });
+  }
+  document.querySelectorAll('[data-audio-set]').forEach(function (b) {
+    const parts = b.dataset.audioSet.split(":");
+    b.setAttribute("aria-pressed", String(parts[1] === "off"));
+    if (parts[1] === "off") b.classList.add("selected");
+    b.addEventListener("click", async function () {
+      if (!canCompose(episode)) return;
+      await PDC.audio.enable();
+      preview.play(); // keep the speakers playing so the processed audio is audible
+      PDC.audio.set(parts[0], parts[1]);
+      markAudioSelected(parts[0], parts[1]);
+    });
+  });
+
+  // Live level meter — visibly reflects the processed audio and its changes.
+  (function meterLoop() {
+    const fill = $("audio-meter-fill");
+    if (fill) {
+      const lvl = PDC.audio && PDC.audio.isEnabled() ? PDC.audio.level() : 0;
+      fill.style.width = Math.min(100, Math.round(lvl * 130)) + "%";
+    }
+    requestAnimationFrame(meterLoop);
+  })();
+
   function refresh() {
     const ready = canCompose(episode);
     const n = assignedBuckets(episode).length;
@@ -265,6 +299,7 @@
     const exportBtn = $("export");
     if (exportBtn && exportBtn.textContent.indexOf("Exporting") === -1) exportBtn.disabled = !ready;
     if (!editor.isOpen()) $("customize").disabled = !ready;
+    document.querySelectorAll('[data-audio-set]').forEach(function (b) { b.disabled = !ready; });
   }
 
   SPEAKER_BUCKETS.forEach(updateBucketRow);

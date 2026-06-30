@@ -256,3 +256,14 @@ body {
   color: #cfe6ff; cursor: pointer;
 }
 .edit-nudge:hover { background: #18324a; }
+
+/* Episode audio mixing controls */
+.audio-controls { margin-top: 12px; padding: 10px; border: 1px solid var(--border, #2a3550); border-radius: 8px; background: #0c1120; }
+.audio-title { display: block; font-weight: 600; margin-bottom: 8px; }
+.audio-group { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+.audio-group > span { min-width: 110px; color: var(--muted, #93a1b5); font-size: 13px; }
+.audio-group button { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border, #2a3550); background: #131a2c; color: #cfe6ff; cursor: pointer; font-size: 13px; }
+.audio-group button.selected { background: #1d4ed8; border-color: #2563eb; color: #fff; }
+.audio-group button:disabled { opacity: 0.45; cursor: not-allowed; }
+.audio-meter { height: 10px; margin-top: 6px; border-radius: 6px; background: #131a2c; overflow: hidden; }
+.audio-meter-fill { height: 100%; width: 0; background: linear-gradient(90deg, #1db954, #d4d41d, #d11d1d); transition: width 0.05s linear; }
