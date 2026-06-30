@@ -42,6 +42,18 @@
       v.dataset.objectUrl = url;
       v.src = url;
       v.load();
+      // Force a decoded frame to paint as soon as the media is ready, so the
+      // speaker shows real pixels immediately instead of a black box even if
+      // autoplay has not produced a frame yet.
+      v.addEventListener(
+        "loadeddata",
+        () => {
+          if (v.currentTime < 0.01) {
+            try { v.currentTime = 0.05; } catch (e) { /* not seekable yet */ }
+          }
+        },
+        { once: true },
+      );
       return v;
     }
 
@@ -52,38 +64,45 @@
     }
 
     // Lay the assigned speaker videos onto the stage using the preset geometry.
-    // Rebuilding the stage children is cheap and keeps DOM order == speaker order.
+    // A preset switch only REPOSITIONS existing frames (and the live <video>
+    // elements inside them) — it never tears down and rebuilds the stage. That
+    // keeps each speaker video continuously attached and playing, so switching
+    // layouts can't flash a black/blank frame (the regression #41 targets).
     function render(episode) {
       const buckets = PDC.episode.assignedBuckets(episode);
       const preset = getPreset(episode.presetId) || PDC.presets.PRESETS[0];
       const rects = preset.layout(buckets.length);
 
-      stageEl.innerHTML = "";
       stageEl.dataset.preset = preset.id;
       stageEl.dataset.speakers = String(buckets.length);
 
+      // Drop only frames whose speaker is no longer present.
+      const wanted = new Set(buckets);
+      [...stageEl.querySelectorAll(".speaker-frame")].forEach((f) => {
+        if (!wanted.has(f.dataset.speaker)) f.remove();
+      });
+
       buckets.forEach((bucket, i) => {
         const rect = rects[i] || rects[rects.length - 1];
-        const frame = document.createElement("div");
-        frame.className = "speaker-frame";
-        frame.dataset.speaker = bucket;
+        let frame = stageEl.querySelector('.speaker-frame[data-speaker="' + bucket + '"]');
+        if (!frame) {
+          frame = document.createElement("div");
+          frame.className = "speaker-frame";
+          frame.dataset.speaker = bucket;
+          frame.appendChild(ensureVideo(bucket)); // persistent <video>, reused across layouts
+          const tag = document.createElement("span");
+          tag.className = "speaker-tag";
+          tag.dataset.speakerTag = bucket;
+          frame.appendChild(tag);
+        }
+        // Reposition in place (no detach => the video keeps painting).
         frame.style.left = rect.x + "%";
         frame.style.top = rect.y + "%";
         frame.style.width = rect.w + "%";
         frame.style.height = rect.h + "%";
-
-        const v = ensureVideo(bucket);
-        frame.appendChild(v);
-
-        const tag = document.createElement("span");
-        tag.className = "speaker-tag";
-        tag.dataset.speakerTag = bucket;
-        // Show the name derived from the speaker's social link when one is set,
-        // otherwise the default bucket label — so the preview visibly reflects
-        // the per-speaker social context entered during setup.
-        tag.textContent = PDC.episode.speakerName(episode, bucket);
-        frame.appendChild(tag);
-
+        // Keep the social-derived speaker name current.
+        frame.querySelector(".speaker-tag").textContent = PDC.episode.speakerName(episode, bucket);
+        // Keep DOM order == speaker order (moving an attached node doesn't reset it).
         stageEl.appendChild(frame);
       });
 

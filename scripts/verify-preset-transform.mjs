@@ -150,7 +150,16 @@ const browserExpression = `
     const vids = [...document.querySelectorAll("#stage video")];
     assert(vids.length === 2, "both uploaded videos present in preset " + id);
     assert(vids.every((v) => v.src.startsWith("blob:") && v.videoWidth > 0), "videos stay decoded uploads in preset " + id);
-    assert(vids.some((v) => nonBlack(v)), "preview must render NON-BLACK uploaded frames in preset " + id);
+    // On-screen ground truth: each speaker video must be laid out at a real size
+    // (filling its frame, not collapsed) and show non-black decoded pixels — what
+    // the rendered-UI screenshot sees. The frame keeps a black background, so a
+    // non-black sample means the uploaded video is actually painting over it.
+    for (const v of vids) {
+      const r = v.getBoundingClientRect();
+      assert(r.width > 8 && r.height > 8, "speaker video laid out with real size in preset " + id);
+    }
+    assert(vids.every((v) => nonBlack(v)), "EVERY uploaded video renders non-black in preset " + id);
+    assert(vids.some((v) => !v.paused), "a speaker video is actively playing in preset " + id);
     assert(tagText("host") === "hostperson" && tagText("guest1") === "guestperson", "derived names persist in preset " + id);
     seen[id] = layout();
   }
