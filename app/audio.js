@@ -96,8 +96,16 @@
       return exportDest ? exportDest.stream.getAudioTracks() : [];
     }
 
+    // The live processing parameters actually applied to the audio graph. These
+    // change deterministically with the controls (no audio hardware required),
+    // so they are a reliable signal that a setting changes the processed mix.
+    function params() {
+      if (!ctx) return { levelingGain: PRESETS.leveling[state.leveling].gain, clarityGain: PRESETS.clarity[state.clarity].gain, noiseFreq: PRESETS.noise[state.noise].freq };
+      return { levelingGain: leveling.gain.value, clarityGain: clarity.gain.value, noiseFreq: noise.frequency.value };
+    }
+
     return {
-      enable, retap, set, level, exportAudioTracks,
+      enable, retap, set, level, exportAudioTracks, params,
       isEnabled: () => enabled,
       state: () => ({ ...state }),
       presets: PRESETS,
