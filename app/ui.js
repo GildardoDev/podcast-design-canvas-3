@@ -16,6 +16,7 @@
   let previewRAF = 0;
 
   const $ = (id) => document.getElementById(id);
+  const $sel = (selector) => document.querySelector(selector);
   const stage = $("stage");
   const ctx = stage.getContext("2d");
 
@@ -58,9 +59,11 @@
     });
     videos[bucket] = v;
     assignSpeakerFile(episode, bucket, { name: file.name, size: file.size, type: file.type, durationSec: isFinite(v.duration) ? v.duration : 0 });
-    const st = $(`[data-status="${bucket}"]`);
-    st.textContent = `${file.name} · ${isFinite(v.duration) ? v.duration.toFixed(1) + "s" : "loaded"}`;
-    st.classList.add("ok");
+    const st = $sel(`[data-status="${bucket}"]`);
+    if (st) {
+      st.textContent = `${file.name} · ${isFinite(v.duration) ? v.duration.toFixed(1) + "s" : "loaded"}`;
+      st.classList.add("ok");
+    }
     refreshReadiness();
   }
 
